@@ -23,6 +23,7 @@
             <button onclick="showSection('dashboard')" class="nav-btn active" id="nav-dashboard">Pulse</button>
             <button onclick="showSection('inventory')" class="nav-btn" id="nav-inventory">Inventory</button>
             <button onclick="showSection('advice')" class="nav-btn" id="nav-advice">Advice</button>
+            <button onclick="location.href='graph.html'" class="nav-btn" id="nav-graph">Graph</button>
         </div>
     </nav>
 
@@ -55,21 +56,29 @@
                     <button class="primary-btn" id="optimize-btn"><i data-lucide="zap"></i> Optimize Pulse</button>
                 </section>
 
-                <section class="card graph-panel">
+                <section class="card optimization-summary">
                     <div class="chart-header">
-                        <h3>Power Dynamics</h3>
-                        <div class="legend">
-                            <div class="legend-item"><span class="circle" style="background:var(--grid)"></span> Grid
-                            </div>
-                            <div class="legend-item"><span class="circle" style="background:var(--solar)"></span> Solar
-                            </div>
-                            <div class="legend-item"><span class="circle" style="background:var(--battery)"></span>
-                                Battery</div>
-                            <div class="legend-item"><span class="circle" style="border:1px dashed #64748b"></span>
-                                Demand</div>
+                        <h3>Optimization Snapshot</h3>
+                        <p style="font-size:0.85rem; color:var(--moss)">Projected impact of the latest optimization.</p>
+                    </div>
+                    <div class="stat-grid">
+                        <div class="stat-card small">
+                            <span class="label">Before Optimization</span>
+                            <span class="value" id="before-cons">— kWh</span>
+                        </div>
+                        <div class="stat-card small">
+                            <span class="label">After Optimization</span>
+                            <span class="value" id="after-cons">— kWh</span>
+                        </div>
+                        <div class="stat-card small">
+                            <span class="label">Energy Saved</span>
+                            <span class="value" id="percent-saved">—%</span>
                         </div>
                     </div>
-                    <div style="height: 350px;"><canvas id="mainChart"></canvas></div>
+                    <div style="margin-top:1rem; display:flex; gap:12px; align-items:center">
+                        <button class="primary-btn" id="view-graph" onclick="location.href='graph.html'">View Graph</button>
+                        <button class="secondary-btn" id="re-run" onclick="runBatchTest()">Re-run Optimization</button>
+                    </div>
                 </section>
             </div>
 

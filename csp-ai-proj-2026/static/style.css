@@ -146,6 +146,31 @@ main {
     gap: 2.5rem;
 }
 
+.optimization-summary .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.stat-card.small {
+    padding: 1rem;
+}
+
+.optimization-summary {
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.optimization-summary .chart-header {
+    margin-bottom: 1rem;
+}
+
+.optimization-summary .primary-btn {
+    min-width: 260px;
+}
+
 .card {
     background: white;
     border-radius: 32px;

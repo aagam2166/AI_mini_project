@@ -124,6 +124,42 @@ async function runBatchTest() {
             document.getElementById('res-solar').textContent = data.summary.solar_savings + ' kWh';
             document.getElementById('res-batt').textContent = data.summary.battery_impact + ' kWh';
 
+            // Optional optimization summary values (may be absent from some backends)
+            const beforeEl = document.getElementById('before-cons');
+            const afterEl = document.getElementById('after-cons');
+            const pctEl = document.getElementById('percent-saved');
+            let before = data.summary.before_consumption ?? data.summary.baseline_consumption ?? null;
+            let after = data.summary.after_consumption ?? data.summary.optimized_consumption ?? null;
+
+            // Fallback: derive totals from time_series if backend doesn't return explicit before/after
+            try {
+                const ts = data.time_series || [];
+                if ((before === null || before === undefined) && ts.length) {
+                    const totalLoad = ts.reduce((acc, s) => acc + (Number(s.load) || 0), 0);
+                    before = Number(totalLoad.toFixed(3));
+                }
+
+                if ((after === null || after === undefined) && ts.length) {
+                    const solar = Number(data.summary?.solar_savings) || 0;
+                    const batt = Number(data.summary?.battery_impact) || 0;
+                    // estimate after = before - solar savings - battery offset
+                    if (before !== null) after = Number(Math.max(0, before - solar - batt).toFixed(3));
+                }
+            } catch (e) { console.warn('fallback compute failed', e); }
+
+            if (beforeEl) beforeEl.textContent = before !== null && before !== undefined ? `${Number(before).toFixed(2)} kWh` : '—';
+            if (afterEl) afterEl.textContent = after !== null && after !== undefined ? `${Number(after).toFixed(2)} kWh` : '—';
+            if (pctEl) {
+                if (before !== null && after !== null && Number(before) > 0) {
+                    const pct = ((Number(before) - Number(after)) / Number(before)) * 100;
+                    pctEl.textContent = `${pct.toFixed(1)}%`;
+                } else if (data.summary.percent_saved !== undefined) {
+                    pctEl.textContent = `${Number(data.summary.percent_saved).toFixed(1)}%`;
+                } else {
+                    pctEl.textContent = '—';
+                }
+            }
+
             renderTimetable(data.schedule);
             updateMainChart(data.time_series);
 
@@ -160,7 +196,9 @@ function renderTimetable(schedule) {
 }
 
 function updateMainChart(ts) {
-    const ctx = document.getElementById('mainChart').getContext('2d');
+    const canvas = document.getElementById('mainChart');
+    if (!canvas) return; // Chart removed from dashboard — only update if present
+    const ctx = canvas.getContext('2d');
     if (mainChart) mainChart.destroy();
 
     mainChart = new Chart(ctx, {
